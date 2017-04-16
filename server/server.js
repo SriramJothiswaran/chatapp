@@ -4,6 +4,7 @@ const express = require('express');
 const socketIO = require('socket.io');
 const generateMessage = require('./utils/message');
 const generateLocationMessage = require('./utils/generateLocationMessage');
+const isRealString = require('./utils/validation');
 
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
@@ -23,7 +24,6 @@ io.on('connection', function(socket){
     //    text : 'Welcome to the Chat App',
     //    createdAt: new Date().getTime()
     //});
-    socket.emit('newMessage', generateMessage('Admin','Welcome to the Chat App'));
 
     //from admin to new user joined
     //socket.broadcast.emit('newMessage', {
@@ -32,7 +32,6 @@ io.on('connection', function(socket){
     //    createdAt: new Date().getTime()
     //});
 
-    socket.broadcast.emit('newMessage', generateMessage('Admin','New User Joined'));
 
     //socket.on('createMessage', function(message,callback){
     //    console.log('createMessage',message);
@@ -44,6 +43,19 @@ io.on('connection', function(socket){
     //    callback('From the server');
     //
     //});
+    socket.on('join', function(params,callback){
+        if(!isRealString(params.name) || !isRealString(params.room)){
+            callback('Name and Room Name are required !');
+        }
+        socket.join(params.room);
+        socket.emit('newMessage', generateMessage('Admin','Welcome to the Chat App'));
+        socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', params.name +' has Joined.'));
+
+
+        callback();
+
+    });
+
     socket.on('createMessage', function(message,callback){
         console.log('createMessage',message);
         io.emit('newMessage', generateMessage(message.from,message.text));
