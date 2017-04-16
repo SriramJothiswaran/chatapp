@@ -46,5 +46,7 @@ locationButton.on('click', function(){
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
         });
+    },function(){
+        alert('Unable to fetch location.')
     });
 });
