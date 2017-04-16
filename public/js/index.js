@@ -7,6 +7,23 @@ socket.on('disconnect', function(){
 });
 
 socket.on("newMessage", function(message){
-   console.log('New Email', message);
+   console.log('New Message', message);
+    var li = $('<li></li>');
+    li.text(message.from + ":" + message.text);
+    $("#messages").append(li);
 });
 
+
+
+
+
+$("#message-form").submit(function(event){
+    event.preventDefault();
+
+    socket.emit('createMessage',{
+       from: 'user',
+        text: $('[name=message]').val()
+    },function(){
+
+    });
+});
